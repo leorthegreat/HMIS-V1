@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Avatar } from '../components/ui/Avatar';
@@ -17,6 +17,8 @@ const housingStatusLabels = {
 export function ClientDetail() {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState('overview');
+  const location = useLocation();
+  const isFullPage = location.pathname.startsWith('/client/');
   
   const client = mockClients.find(c => c.id === id);
   const clientNotes = mockNotes.filter(note => note.clientId === id);
@@ -37,7 +39,7 @@ export function ClientDetail() {
     );
   }
 
-  return (
+  const content = (
     <div className="space-y-6">
       {/* Client Header */}
       <div className="rounded-xl bg-white p-6 shadow-sm">
@@ -329,6 +331,7 @@ export function ClientDetail() {
             <Button>Add Note</Button>
           </div>
           
+          
           {clientNotes.length > 0 ? (
             <div className="space-y-4">
               {clientNotes.map(note => (
@@ -482,4 +485,15 @@ export function ClientDetail() {
       )}
     </div>
   );
+
+  return isFullPage ? (
+    <div className="container mx-auto max-w-7xl px-4 py-6">
+      <div className="mb-6">
+        <Link to="/clients">
+          <Button variant="outline">← Back to Clients</Button>
+        </Link>
+      </div>
+      {content}
+    </div>
+  ) : content;
 }

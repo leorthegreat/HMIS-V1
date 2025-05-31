@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { PlusIcon, LayoutGrid, Table, X } from 'lucide-react';
-import { Outlet, useParams, useNavigate } from 'react-router-dom';
+import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { ClientCard } from '../components/clients/ClientCard';
 import { ClientFilter } from '../components/clients/ClientFilter';
@@ -14,9 +14,11 @@ export function ClientList() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null);
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   
   const currentUser = mockUsers[0]; // Using first mock user for demo
   const filteredClients = filterClients(mockClients, filters);
+  const isFullPage = location.pathname.startsWith('/client/');
 
   // Calculate dashboard stats
   const myClients = mockClients.filter(client => client.caseManagerId === currentUser.id);
@@ -86,6 +88,10 @@ export function ClientList() {
     },
   ];
 
+  if (isFullPage) {
+    return <Outlet />;
+  }
+
   return (
     <div className="flex h-full">
       {/* Main Content */}
@@ -142,9 +148,21 @@ export function ClientList() {
               <div
                 key={client.id}
                 onClick={() => navigate(`/clients/${client.id}`)}
-                className="cursor-pointer transition-transform hover:scale-[1.02]"
+                className="group cursor-pointer transition-transform hover:scale-[1.02]"
               >
                 <ClientCard client={client} />
+                <div className="mt-2 flex justify-end opacity-0 transition-opacity group-hover:opacity-100">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/client/${client.id}`);
+                    }}
+                  >
+                    View Full Page
+                  </Button>
+                </div>
               </div>
             ))}
           </div>
@@ -158,6 +176,7 @@ export function ClientList() {
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Status</th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Priority Score</th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Last Updated</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
@@ -201,6 +220,18 @@ export function ClientList() {
                     <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                       {new Date(client.lastUpdated).toLocaleDateString()}
                     </td>
+                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/client/${client.id}`);
+                        }}
+                      >
+                        View Full Page
+                      </Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -217,17 +248,25 @@ export function ClientList() {
       </div>
 
       {/* Side Panel */}
-      {id && (
+      {id && !isFullPage && (
         <div className="w-2/5 border-l border-gray-200 bg-white">
           <div className="sticky top-0 flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
             <h2 className="text-xl font-semibold">Client Details</h2>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/clients')}
-            >
-              <X className="h-5 w-5" />
-            </Button>
+            <div className="flex space-x-2">
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/client/${id}`)}
+              >
+                Full Page
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate('/clients')}
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
           <div className="overflow-y-auto p-6">
             <Outlet />

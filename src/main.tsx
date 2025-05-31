@@ -23,6 +23,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="clients" element={<ClientList />}>
             <Route path=":id" element={<ClientDetail />} />
           </Route>
+          <Route path="client/:id" element={<ClientDetail />} />
           <Route path="coordinated-entry" element={<CoordinatedEntry />} />
           <Route path="programs" element={<Programs />}>
             <Route path=":id" element={<ProgramDetail />} />
